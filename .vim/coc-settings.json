@@ -1,0 +1,10 @@
+{
+  "diagnostic.enable": false,
+  "inlayHint.enable": false,
+  "clangd.arguments": [
+    "--background-index",
+    "--pch-storage=memory",
+    "--malloc-trim",
+    "--log=error"
+  ]
+}

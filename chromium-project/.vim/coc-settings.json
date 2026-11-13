@@ -1,0 +1,15 @@
+{
+  "diagnostic.enable": false,
+  "inlayHint.enable": false,
+  "clangd.arguments": [
+    "--background-index",
+    "--pch-storage=memory",
+    "--malloc-trim",
+    "--log=error"
+  ],
+  "java.import.gradle.enabled": false,
+  "java.import.maven.enabled": false,
+  "java.jdt.ls.java.home": "/home/ckf/workspace/alpha-chromium_135-pad/CkfChromium-135-alpha/src/third_party/jdk/current",
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx16G -Xms100m -Xlog:disable",
+  "java.compile.nullAnalysis.mode": "disabled"
+}

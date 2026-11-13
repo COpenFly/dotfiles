@@ -1,0 +1,45 @@
+" Gruvbox Dark Soft 主题 for vifm
+" 基于 gruvbox 配色方案
+
+highlight clear
+
+" 基本窗口
+highlight Win cterm=NONE ctermfg=230 ctermbg=236
+highlight Normal cterm=bold ctermfg=230 ctermbg=236
+
+" 目录和文件
+highlight Directory cterm=bold ctermfg=109 ctermbg=236
+highlight Link cterm=NONE ctermfg=109 ctermbg=236
+highlight BrokenLink cterm=NONE ctermfg=167 ctermbg=236
+highlight Executable cterm=bold ctermfg=142 ctermbg=236
+
+" 特殊文件
+highlight Device cterm=bold ctermfg=214 ctermbg=236
+highlight Fifo cterm=NONE ctermfg=214 ctermbg=236
+highlight Socket cterm=NONE ctermfg=175 ctermbg=236
+
+" 选中行
+highlight Selected cterm=NONE ctermfg=236 ctermbg=109
+highlight CurrLine cterm=NONE ctermfg=236 ctermbg=109
+
+" 状态栏
+highlight StatusLine cterm=bold ctermfg=230 ctermbg=60
+highlight StatusLineNC cterm=NONE ctermfg=230 ctermbg=238
+
+" 边框
+highlight Border cterm=NONE ctermfg=238 ctermbg=236
+highlight TopLine cterm=NONE ctermfg=230 ctermbg=238
+highlight TopLineSel cterm=bold ctermfg=230 ctermbg=60
+
+" 命令行
+highlight CmdLine cterm=NONE ctermfg=230 ctermbg=236
+highlight ErrorMsg cterm=bold ctermfg=230 ctermbg=236
+highlight WildMenu cterm=bold ctermfg=230 ctermbg=60
+
+" 搜索
+highlight Search cterm=NONE ctermfg=236 ctermbg=214
+highlight IncSearch cterm=NONE ctermfg=236 ctermbg=214
+
+" 其他
+highlight CmpMismatch cterm=NONE ctermfg=167 ctermbg=236
+highlight CmpUnmatched cterm=NONE ctermfg=109 ctermbg=236

@@ -1,0 +1,206 @@
+1. #include "base/logging.h"
+   LOG(ERROR) << __func__ << __LINE__ << "[ckf log] " <<;
+
+   import android.util.Log;
+   Log.e("ckf log", "");
+
+2. Chromium C++ layer:
+   #include "base/debug/stack_trace.h"
+   LOG(ERROR) << base::debug::StackTrace().ToStringWithPrefix("[ckf log]");
+
+   Chromium Java layer:
+   import android.util.Log;
+   String stackTraceString = Log.getStackTraceString(new Throwable("[ckf log] 当前堆栈"));
+   Log.e("Debug", stackTraceString);
+
+3. enable a location service:
+   python3 -m http.server 8000
+
+4. http://10.189.51.22:8090/hover_test/
+
+5. download all version chrome for android
+   https://www.apkmirror.com/
+
+   download all version chromium for all platform
+   https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html
+
+6. chromium source code commits diff between two version, for example:
+   https://chromium.googlesource.com/chromium/src/+log/130.0.6723.92..131.0.6778.33/
+
+   chrome release notes:
+   https://developer.chrome.com/release-notes?hl=zh-cn
+
+7. create a c++ tag
+   ctags --fields=+iaS --extras=+q -R .
+
+8. vim show column width position
+   set colorcolumn=80
+
+9. use chromium ninja to generate compile_commands.json for clangd
+   ninja -C out/Arm64SystemWebViewRelease/ -t compdb > compile_commands.json
+   (json 放在项目根目录）
+
+   use chromium generate_vscode_project.py to generate [.classpath / .project / .settings] for coc-java (jdt.ls)
+   build/android/generate_vscode_project.py --output-dir out/Arm64SystemWebViewRelease --build-config gen/ckf/dist/aar/hyper_aar_apk.build_config.json
+
+   注意：generate_vscode_project.py 使用的 vpython 会实时同步Google服务端相关依赖，可能网络很慢很卡，但是此脚本只需要 python3 就可以运行：
+   GENERATE_VSCODE_CLASSPATH_DEBUG=1 python3 build/android/generate_vscode_project.py --output-dir out/Arm64SystemWebViewRelease --build-config gen/ckf/dist/aar/hyper_aar_apk.build_config.json
+
+   how to support  android project for coc-java (jdt.ls)
+   lookup https://github.com/PEMessage/android-classpath-generator
+   ./gradlew -I init.gradle eclipse
+
+
+10. dark mode with js
+const darkStyle = document.createElement('style');
+darkStyle.id = 'forced-dark-mode';
+darkStyle.textContent = `
+:root {
+    color-scheme: dark !important;
+}
+html {
+    background: #121212 !important;
+    filter: invert(1) hue-rotate(180deg) !important;
+}
+img, video, [class*="ads"] {
+    filter: invert(1) hue-rotate(180deg) !important;
+}`;
+document.head.appendChild(darkStyle);
+
+11. gray mode with js
+(function() {
+    // 注入 CSS 规则，性能更好且能覆盖内联样式
+    const style = document.createElement('style');
+    style.textContent = `
+        * {
+            background-color: #d3d3d30a !important;
+            background-image: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+12. file management tools
+    tmux
+    vim + NERDTree / nvim / helix / vifm / ranger / broot / nnn / mc
+    yazi (format error)
+
+13. sudo du -h --max-depth=1 . | sort -hr
+
+14. chromium build with -j args
+    <1> gn args out/Default  # 添加: use_siso = false
+    <2> NINJA_CORE_ADDITION=-8 autoninja -C out/Default chrome_public_apk
+        （24 cpu core - 8 = 16 core）
+        or
+        ninja -j 16 -C out/Default chrome_public_apk
+
+15. pandoc 转换各种文档, 比如 markdown 到 html5
+    pandoc test.md -o test.html
+
+16. https://chromium.googlesource.com/chromium/src/+/main/docs/android_debugging_instructions.md
+    # 使用编译输出目录中的 wrapper script 直接传参
+    out/Default/bin/chrome_public_apk launch --args='--renderer-process-limit=1'
+
+17. 列出所有目录文件（包括所有子目录）
+    tree -fa
+    ls -Ra
+
+------------------------------------------------------>
+90. keyd 交换 Caps Lock 和 Ctrl 配置流程
+
+# 1. 安装依赖
+sudo apt install git meson gcc libudev-dev
+
+# 2. 从源码安装 keyd
+git clone https://github.com/rvaiya/keyd /tmp/keyd
+cd /tmp/keyd
+make
+sudo make install
+
+# 3. 写入配置
+sudo tee /etc/keyd/default.conf << 'EOF'
+[ids]
+*
+
+[main]
+capslock = leftcontrol
+leftcontrol = capslock
+
+[control]
+h = left
+j = down
+k = up
+l = right
+EOF
+
+# 4. 创建 systemd service
+sudo tee /etc/systemd/system/keyd.service << 'EOF'
+[Unit]
+Description=Keyd remapping daemon
+After=local-fs.target
+Before=display-manager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/keyd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 5. 启动并设为开机自启
+sudo systemctl daemon-reload
+sudo systemctl enable --now keyd
+
+# 6. 验证
+sudo keyd monitor
+
+关键点：
+- Ubuntu apt 里的 keyd 是 PGP keyserver，不是键盘重映射工具，必须从源码编译 rvaiya/keyd
+- keyd 工作在内核输入层，Wayland 和 ibus 均无法绕过
+- 配置中用 leftcontrol 而非 ctrl
+------------------------------------------------------>
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+100. git binary search
+git bisect start '--term-new' 'fixed' '--term-old' 'broken'
+# status: waiting for both good and bad commits
+# broken: [f600d0656fd5b5fe4a82981f533d31ed6939e2e4] Roll Website from 0775eda366d1 to a812d2261782 (1 revision)
+git bisect broken f600d0656fd5b5fe4a82981f533d31ed6939e2e4
+# status: waiting for bad commit, 1 good commit known
+# fixed: [6e9636016e3303bbba1d003b1d3daafcd4d9fce9] [iOS] Refactor photo framing flow to use Chromium Task API
+git bisect fixed 6e9636016e3303bbba1d003b1d3daafcd4d9fce9
+# broken: [8a9a453ee82cbd4b6be019fcd7d8b6828fc7fcd4] Validate the values in tab_group_color_palette key
+git bisect broken 8a9a453ee82cbd4b6be019fcd7d8b6828fc7fcd4
+# broken: [cea244af29e856b5b6c756276b6b647b00badc56] Add JavaScript helper functions for side effects
+git bisect broken cea244af29e856b5b6c756276b6b647b00badc56
+# broken: [adafa7f6295c7f5f92e6e04de13ea73c1a210579] [Read aloud] Fix languages not downloading on Mac
+git bisect broken adafa7f6295c7f5f92e6e04de13ea73c1a210579
+# fixed: [dd0b84cbabd3b0cb81d227bfb85a52e11d0a7f98] Roll goldctl (mac) from tJ9Ig7GLCer81AflL... to 12tDnieLoBvORD80s...
+git bisect fixed dd0b84cbabd3b0cb81d227bfb85a52e11d0a7f98
+# broken: [939bb65bb03a3e3e5d48f3940cbd82749bc94f77] [ios] Make sure widget is updated when multi-profile is enabled
+git bisect broken 939bb65bb03a3e3e5d48f3940cbd82749bc94f77
+# fixed: [14d82c920f404e613aa1216c3e46d1d7f1217b78] [hub] Add a tooltip text to the search loupe for landscape and LFF
+git bisect fixed 14d82c920f404e613aa1216c3e46d1d7f1217b78
+# fixed: [8c07ec7d121af2281d2b1e14c230366b04e6bef0] Roll RE2 from 79741d66ed4a to ade723c0c3bb (1 revision)
+git bisect fixed 8c07ec7d121af2281d2b1e14c230366b04e6bef0
+# broken: [abd5c3331f07821949a4cac2cd18b735f74a106a] Roll Perfetto from 55cf0be79510 to b245152d7572 (30 revisions)
+git bisect broken abd5c3331f07821949a4cac2cd18b735f74a106a
+# broken: [ff2bad7955f04032e129f5b73824026ae533ed0e] Use primary profile on window closure for MSC notification
+git bisect broken ff2bad7955f04032e129f5b73824026ae533ed0e
+# fixed: [7d98b340bdabd6f556a82435cf037854948d4c0b] Roll Perfetto Trace Processor Linux from 55cf0be79510 to b245152d7572
+git bisect fixed 7d98b340bdabd6f556a82435cf037854948d4c0b
+# fixed: [e698399a399ec98f8af626cfdc877b14aa109dda] [Memory Coordinator] Now properly group consumers by process ID
+git bisect fixed e698399a399ec98f8af626cfdc877b14aa109dda
+# fixed: [1ed67a2863710e699c305323d87e211f0870c3c1] Roll SwiftShader from 084f9893520c to b347398f5e86 (1 revision)
+git bisect fixed 1ed67a2863710e699c305323d87e211f0870c3c1
+# fixed: [906de9c650ec9a7ade03be5f3ba6e3331c53a8cc] Raise the WebGL texture size limit on Android >= 14
+git bisect fixed 906de9c650ec9a7ade03be5f3ba6e3331c53a8cc
+# broken: [b20194314198547fc0c532392cc2bcb7f088bf96] [iOS] Refactor the navigation controller for BWG to FRE Wrapper
+git bisect broken b20194314198547fc0c532392cc2bcb7f088bf96
+# first fixed commit: [906de9c650ec9a7ade03be5f3ba6e3331c53a8cc] Raise the WebGL texture size limit on Android >= 14P
